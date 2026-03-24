@@ -1,0 +1,59 @@
+function setup() {
+  createCanvas(800, 800);
+  noStroke();
+  // We use Radians now. It's much safer for continuous wave math.
+}
+
+function draw() {
+  background(20);
+  translate(width / 2, height / 2);
+
+  // Background Disk
+  fill(0, 120, 190);
+  circle(0, 0, 750);
+
+  let nDots = 4500; // Higher density
+  let c = 5.5;      // Tighter grid spacing
+  let goldenAngle = 2.39996323; // Exact golden angle in Radians
+
+  // THE FIX: In a Fermat spiral, average spacing is roughly c * 1.77.
+  // We strictly cap the max dot size slightly below this so they NEVER touch.
+  let maxDotSize = c * 1.5; 
+
+  for (let i = 1; i < nDots; i++) {
+    let r = c * sqrt(i);
+    
+    // Crop strictly to the blue sticker
+    if (r > 365) continue; 
+
+    let theta = i * goldenAngle;
+    let x = r * cos(theta);
+    let y = r * sin(theta);
+
+    // --- THE VORTEX MATH (Logarithmic Scalar Field) ---
+    // 1. Evaluate a 2D logarithmic spiral at this specific (r, theta) point.
+    let arms = 4;     // The exact number of arms wrapping into the center
+    let twist = 3.5;  // How tightly they coil outwards
+    
+    let phase = (arms * theta) - (twist * log(r));
+    
+    // 2. Map the sine wave from [-1, 1] to a usable [0, 1] multiplier
+    let wave = (sin(phase) + 1) / 2; 
+    
+    // 3. Power function to sharpen the peaks:
+    // This makes the blue "valleys" wider and the white "arms" sharper
+    wave = pow(wave, 1.5); 
+    
+    // 4. Calculate size, constrained by the Fermat grid limits
+    let dotSize = map(wave, 0, 1, 0.5, maxDotSize);
+
+    // 5. Radial fade to mimic the photo:
+    // The very center dots fade into tiny specs to enhance the "depth" illusion
+    let centerFade = min(1.0, r / 25.0);
+    dotSize *= centerFade;
+
+    fill(255);
+    circle(x, y, dotSize);
+  }
+  noLoop();
+}

@@ -1,0 +1,99 @@
+function setup() {
+  createCanvas(900, 900);
+  noLoop();
+}
+
+function draw() {
+  background(20);
+
+  translate(width / 2, height / 2);
+
+  const R = 390;
+
+  // blue disk
+  noStroke();
+  fill(20, 145, 210);
+  circle(0, 0, 2 * R);
+
+  fill(255);
+
+  // ----------------------------
+  // Main tuning knobs
+  // ----------------------------
+  const arms = 2;          // big spiral bands
+  const K = 58;            // dots around each log-ring
+  const r0 = 0.012;        // starting normalized radius
+  const growth = 0.048;    // exponential ring spacing
+  const delta = 0.17;      // angular slant of the lattice
+  const tight = 3.75;      // spiral winding
+  const gamma = 2.0;       // band contrast
+
+  const minDot = 0.65;
+  const maxDot = 17.0;
+
+  // ----------------------------
+  // Pass 1: main dots
+  // ----------------------------
+  for (let n = 0; n < 220; n++) {
+    let rNorm = r0 * exp(growth * n);
+    if (rNorm > 1.05) break;
+
+    let base = lerp(minDot, maxDot, pow(rNorm, 1.08));
+
+    for (let j = 0; j < K; j++) {
+      let theta = TWO_PI * j / K + n * delta;
+
+      // Spiral phase field
+      let psi = arms * (theta + tight * log(rNorm));
+
+      // Big dots ride on the white spiral bands
+      let band = pow(0.5 + 0.5 * cos(psi), gamma);
+
+      let d = base * (0.58 + 1.10 * band);
+
+      let x = R * rNorm * cos(theta);
+      let y = R * rNorm * sin(theta);
+
+      if (x * x + y * y <= sq(R - d * 0.52)) {
+        circle(x, y, d);
+      }
+    }
+  }
+
+  // ----------------------------
+  // Pass 2: filler dots
+  // This adds the smaller dots between the big bands
+  // so it feels more like the reference image.
+  // ----------------------------
+  for (let n = 0; n < 220; n++) {
+    let rNorm = r0 * exp(growth * (n + 0.5));
+    if (rNorm > 1.05) break;
+
+    // keep the very center from getting blown out
+    if (rNorm < 0.08) continue;
+
+    let base = lerp(minDot, maxDot, pow(rNorm, 1.08));
+
+    for (let j = 0; j < K; j++) {
+      let theta = TWO_PI * (j + 0.5) / K + n * delta;
+
+      let psi = arms * (theta + tight * log(rNorm));
+      let band = pow(0.5 + 0.5 * cos(psi), gamma);
+
+      let d = base * 0.42 * (0.92 + 0.30 * band);
+
+      let x = R * rNorm * cos(theta);
+      let y = R * rNorm * sin(theta);
+
+      if (x * x + y * y <= sq(R - d * 0.52)) {
+        circle(x, y, d);
+      }
+    }
+  }
+
+  // outer edge
+  noFill();
+  stroke(245);
+  strokeWeight(2.5);
+  circle(0, 0, 2 * R);
+}
