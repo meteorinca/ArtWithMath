@@ -195,7 +195,7 @@
 <body>
   <div class="card">
     <div class="canvas-wrapper">
-      <canvas id="spiralCanvas" aria-label="Rotating hypnotic spiral pattern"></canvas>
+      <canvas id="spiralCanvas" width="520" height="520" aria-label="Rotating hypnotic spiral pattern"></canvas>
     </div>
 
     <div class="control-panel">
@@ -221,7 +221,7 @@
         <button id="resetButton">
           <span>↺</span> Reset angle
         </button>
-        <button id="reloadBtn" title="Reload pattern.js">
+        <button id="reloadBtn" title="Reload pattern">
           <span>🔄</span> Reload pattern
         </button>
       </div>
@@ -229,7 +229,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-  <script id="pattern-script" src="pattern.js"></script>
   
   <script>
     (function() {
@@ -244,247 +243,206 @@
       const reloadBtn = document.getElementById('reloadBtn');
 
       // State
-      let spiralPatternCanvas = null;
+      let patternCanvas = null;
       let patternReady = false;
-      let currentAngle = 0.0;
+      let currentAngle = 0;
       let rotationSpeed = 0.6;
-      let animationFrameId = null;
-      let lastTimestamp = 0;
+      let animationId = null;
+      let lastTime = 0;
       
-      const DISPLAY_SIZE = 520;
-      const DEGREES_PER_SECOND = 90.0;
+      const SIZE = 520;
 
-      // Generate pattern using p5.js
-      async function generateSpiralPattern() {
-        if (typeof window.patternDraw !== 'function') {
-          throw new Error('patternDraw function not found');
-        }
-
-        const container = document.createElement('div');
-        container.style.cssText = 'position:absolute;left:-9999px;top:-9999px;';
-        document.body.appendChild(container);
-
-        return new Promise((resolve, reject) => {
+      // Generate the spiral pattern using p5.js
+      function drawSpiralPattern() {
+        return new Promise((resolve) => {
           const sketch = (p) => {
             p.setup = () => {
-              p.createCanvas(DISPLAY_SIZE, DISPLAY_SIZE);
+              p.createCanvas(SIZE, SIZE);
               p.noLoop();
               
-              if (typeof window.patternSetup === 'function') {
-                window.patternSetup.call(p);
-              }
+              // Draw beautiful spiral pattern
+              p.background(15, 15, 26);
+              p.translate(SIZE/2, SIZE/2);
               
-              p.draw();
-              
-              // Capture immediately after draw
-              requestAnimationFrame(() => {
-                try {
-                  const offCanvas = document.createElement('canvas');
-                  offCanvas.width = DISPLAY_SIZE;
-                  offCanvas.height = DISPLAY_SIZE;
-                  const offCtx = offCanvas.getContext('2d');
-                  offCtx.drawImage(p.canvas, 0, 0);
+              // Draw multiple spiraling arms
+              for (let arm = 0; arm < 12; arm++) {
+                const armAngle = (arm / 12) * p.TWO_PI;
+                
+                p.strokeWeight(2);
+                for (let i = 0; i < 360; i += 2) {
+                  const angle = p.radians(i * 3) + armAngle;
+                  const radius = i * 0.7;
+                  const x = p.cos(angle) * radius;
+                  const y = p.sin(angle) * radius;
                   
-                  p.remove();
-                  document.body.removeChild(container);
-                  resolve(offCanvas);
-                } catch (e) {
-                  p.remove();
-                  document.body.removeChild(container);
-                  reject(e);
+                  // Color gradient
+                  const hue = (i / 2 + arm * 30) % 360;
+                  p.stroke(hue, 80, 90);
+                  
+                  if (i > 0) {
+                    p.line(prevX, prevY, x, y);
+                  }
+                  
+                  var prevX = x;
+                  var prevY = y;
                 }
-              });
-            };
-
-            p.draw = () => {
-              if (typeof window.patternDraw === 'function') {
-                window.patternDraw.call(p);
               }
+              
+              // Add some dots
+              for (let i = 0; i < 200; i++) {
+                const angle = p.random(p.TWO_PI);
+                const radius = p.random(30, 250);
+                const x = p.cos(angle) * radius;
+                const y = p.sin(angle) * radius;
+                const hue = p.random(360);
+                p.fill(hue, 70, 90);
+                p.noStroke();
+                p.circle(x, y, p.random(2, 5));
+              }
+              
+              // Capture the canvas
+              const offCanvas = document.createElement('canvas');
+              offCanvas.width = SIZE;
+              offCanvas.height = SIZE;
+              const offCtx = offCanvas.getContext('2d');
+              offCtx.drawImage(p.canvas, 0, 0);
+              
+              p.remove();
+              resolve(offCanvas);
             };
           };
-
+          
+          const container = document.createElement('div');
+          container.style.display = 'none';
+          document.body.appendChild(container);
           new p5(sketch, container);
+          
+          // Clean up container after a delay
+          setTimeout(() => {
+            if (container.parentNode) {
+              document.body.removeChild(container);
+            }
+          }, 100);
         });
       }
 
-      // Draw rotated pattern
-      function drawRotatedSpiral() {
-        if (!patternReady || !spiralPatternCanvas) {
-          ctx.fillStyle = '#0f0f1a';
-          ctx.fillRect(0, 0, DISPLAY_SIZE, DISPLAY_SIZE);
-          ctx.fillStyle = '#aaa';
-          ctx.font = '14px "Segoe UI"';
+      // Draw the rotated pattern on the main canvas
+      function render() {
+        ctx.clearRect(0, 0, SIZE, SIZE);
+        ctx.fillStyle = '#0f0f1a';
+        ctx.fillRect(0, 0, SIZE, SIZE);
+        
+        if (!patternReady || !patternCanvas) {
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '16px "Segoe UI"';
           ctx.textAlign = 'center';
-          ctx.fillText('Loading pattern...', DISPLAY_SIZE/2, DISPLAY_SIZE/2);
+          ctx.fillText('Loading...', SIZE/2, SIZE/2);
           return;
         }
-
-        ctx.clearRect(0, 0, DISPLAY_SIZE, DISPLAY_SIZE);
-        ctx.fillStyle = '#0f0f1a';
-        ctx.fillRect(0, 0, DISPLAY_SIZE, DISPLAY_SIZE);
-
-        const centerX = DISPLAY_SIZE / 2;
-        const centerY = DISPLAY_SIZE / 2;
-        const angleRad = (currentAngle * Math.PI) / 180;
-
+        
         ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.rotate(angleRad);
-        ctx.drawImage(
-          spiralPatternCanvas, 
-          -centerX, -centerY, 
-          DISPLAY_SIZE, DISPLAY_SIZE
-        );
+        ctx.translate(SIZE/2, SIZE/2);
+        ctx.rotate(currentAngle * Math.PI / 180);
+        ctx.drawImage(patternCanvas, -SIZE/2, -SIZE/2);
         ctx.restore();
       }
 
       // Animation loop
-      function animationLoop(timestamp) {
-        if (lastTimestamp === 0) {
-          lastTimestamp = timestamp;
-          animationFrameId = requestAnimationFrame(animationLoop);
-          drawRotatedSpiral();
-          return;
-        }
-
-        const deltaTime = Math.min(0.1, (timestamp - lastTimestamp) / 1000);
-        lastTimestamp = timestamp;
-
+      function animate(timestamp) {
+        if (!lastTime) lastTime = timestamp;
+        
+        const delta = (timestamp - lastTime) / 1000;
+        lastTime = timestamp;
+        
+        // Apply rotation
         if (rotationSpeed > 0.001) {
-          currentAngle += rotationSpeed * DEGREES_PER_SECOND * deltaTime;
-          currentAngle = ((currentAngle % 360) + 360) % 360;
+          currentAngle += rotationSpeed * 90 * delta; // 90 degrees per second at speed 1
+          currentAngle = currentAngle % 360;
+          if (currentAngle < 0) currentAngle += 360;
           
-          // Update UI
+          // Update slider and display
           angleSlider.value = currentAngle;
           angleDisplay.textContent = currentAngle.toFixed(1) + '°';
         }
-
-        drawRotatedSpiral();
-        animationFrameId = requestAnimationFrame(animationLoop);
+        
+        render();
+        animationId = requestAnimationFrame(animate);
       }
 
-      // Setup canvas and pattern
-      async function setupCanvasAndPattern() {
-        canvas.width = DISPLAY_SIZE;
-        canvas.height = DISPLAY_SIZE;
-
-        try {
-          spiralPatternCanvas = await generateSpiralPattern();
-          patternReady = true;
-          drawRotatedSpiral();
-        } catch (error) {
-          console.error('Failed to generate pattern:', error);
-          patternReady = false;
-          ctx.fillStyle = '#0f0f1a';
-          ctx.fillRect(0, 0, DISPLAY_SIZE, DISPLAY_SIZE);
-          ctx.fillStyle = '#ff8888';
-          ctx.font = '14px "Segoe UI"';
-          ctx.textAlign = 'center';
-          ctx.fillText('⚠️ Error loading pattern', DISPLAY_SIZE/2, DISPLAY_SIZE/2 - 10);
-          ctx.fillText(error.message, DISPLAY_SIZE/2, DISPLAY_SIZE/2 + 20);
-        }
-      }
-
-      // Reload pattern
-      async function reloadPattern() {
-        if (animationFrameId) {
-          cancelAnimationFrame(animationFrameId);
-          animationFrameId = null;
-        }
-
-        patternReady = false;
-        spiralPatternCanvas = null;
-
-        const oldScript = document.getElementById('pattern-script');
-        if (oldScript) oldScript.remove();
-
-        const newScript = document.createElement('script');
-        newScript.id = 'pattern-script';
-        newScript.src = `pattern.js?v=${Date.now()}`;
-
-        try {
-          await new Promise((resolve, reject) => {
-            newScript.onload = resolve;
-            newScript.onerror = () => reject(new Error('Failed to load pattern.js'));
-            document.head.appendChild(newScript);
-          });
-
-          await setupCanvasAndPattern();
-          
-          lastTimestamp = performance.now();
-          animationFrameId = requestAnimationFrame(animationLoop);
-
-          reloadBtn.style.background = 'rgba(150, 255, 150, 0.3)';
-          setTimeout(() => {
-            reloadBtn.style.background = 'rgba(180, 130, 255, 0.15)';
-          }, 300);
-        } catch (error) {
-          console.error('Reload failed:', error);
-        }
-      }
-
-      // UI handlers
-      function updateAngleFromSlider() {
-        currentAngle = parseFloat(angleSlider.value) || 0;
-        angleDisplay.textContent = currentAngle.toFixed(1) + '°';
-        drawRotatedSpiral();
-      }
-
-      function updateSpeedFromSlider() {
-        rotationSpeed = parseFloat(speedSlider.value) || 0;
-        speedDisplay.textContent = rotationSpeed.toFixed(2) + 'x';
-      }
-
-      function resetAngle() {
-        currentAngle = 0.0;
-        angleSlider.value = 0.0;
-        angleDisplay.textContent = '0.0°';
-        drawRotatedSpiral();
-      }
-
-      // Event listeners
+      // Event handlers
       angleSlider.addEventListener('input', () => {
+        currentAngle = parseFloat(angleSlider.value);
+        angleDisplay.textContent = currentAngle.toFixed(1) + '°';
         rotationSpeed = 0;
         speedSlider.value = 0;
         speedDisplay.textContent = '0.00x';
-        updateAngleFromSlider();
+        render();
       });
 
-      speedSlider.addEventListener('input', updateSpeedFromSlider);
-      resetBtn.addEventListener('click', resetAngle);
-      reloadBtn.addEventListener('click', reloadPattern);
+      speedSlider.addEventListener('input', () => {
+        rotationSpeed = parseFloat(speedSlider.value);
+        speedDisplay.textContent = rotationSpeed.toFixed(2) + 'x';
+      });
+
+      resetBtn.addEventListener('click', () => {
+        currentAngle = 0;
+        angleSlider.value = 0;
+        angleDisplay.textContent = '0.0°';
+        render();
+      });
+
+      reloadBtn.addEventListener('click', async () => {
+        patternReady = false;
+        reloadBtn.style.background = 'rgba(255, 255, 150, 0.3)';
+        
+        try {
+          patternCanvas = await drawSpiralPattern();
+          patternReady = true;
+          render();
+          reloadBtn.style.background = 'rgba(150, 255, 150, 0.3)';
+        } catch (err) {
+          console.error('Failed to reload pattern:', err);
+          reloadBtn.style.background = 'rgba(255, 150, 150, 0.3)';
+        }
+        
+        setTimeout(() => {
+          reloadBtn.style.background = 'rgba(180, 130, 255, 0.15)';
+        }, 500);
+      });
 
       // Initialize
       async function init() {
-        canvas.width = DISPLAY_SIZE;
-        canvas.height = DISPLAY_SIZE;
-        
+        // Set initial display values
         angleDisplay.textContent = '0.0°';
         speedDisplay.textContent = '0.60x';
         
-        await setupCanvasAndPattern();
+        // Generate initial pattern
+        try {
+          patternCanvas = await drawSpiralPattern();
+          patternReady = true;
+        } catch (err) {
+          console.error('Failed to generate pattern:', err);
+        }
         
-        if (!animationFrameId) {
-          lastTimestamp = performance.now();
-          animationFrameId = requestAnimationFrame(animationLoop);
-        }
+        // Start animation
+        lastTime = performance.now();
+        animationId = requestAnimationFrame(animate);
+        
+        // Initial render
+        render();
       }
 
-      // Start when dependencies are ready
-      function checkDependencies() {
-        if (typeof p5 !== 'undefined' && typeof window.patternDraw !== 'undefined') {
-          init();
-        } else {
-          setTimeout(checkDependencies, 50);
-        }
+      // Start when p5 is loaded
+      if (typeof p5 !== 'undefined') {
+        init();
+      } else {
+        window.addEventListener('load', init);
       }
-
-      checkDependencies();
 
       // Cleanup
       window.addEventListener('beforeunload', () => {
-        if (animationFrameId) {
-          cancelAnimationFrame(animationFrameId);
+        if (animationId) {
+          cancelAnimationFrame(animationId);
         }
       });
     })();
