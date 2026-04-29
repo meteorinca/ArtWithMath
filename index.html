@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Spiral – Rotation Speed & Offset</title>
+  <title>Spiral – Rotation Speed & Manual Offset</title>
   <style>
     * {
       margin: 0;
@@ -119,7 +119,7 @@
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-  <!-- Load the pattern file (refactored) -->
+  <!-- Load the pattern file (must contain drawSpiral function) -->
   <script src="sample.js"></script>
 </head>
 <body>
@@ -137,109 +137,87 @@
     <span id="speedVal" class="value-display">0 °/s</span>
   </div>
 </div>
-<div class="info">spiral | two sliders | editable sample.js</div>
+<div class="info">spiral | manual offset + auto‑rotation speed</div>
 
 <script>
-  // -------- animation & sliders --------
-  let manualAngleDeg = 0;      // degrees from slider
-  let rotationSpeedDegPerSec = 0;
-  let autoAngleDeg = 0;        // accumulates over time (seconds)
+  // --- Global p5 variables ---
+  let canvas;
+  let manualAngleDeg = 0;          // from slider (degrees)
+  let autoAngleRad = 0;            // accumulated auto rotation (radians)
+  let rotationSpeedDegPerSec = 0;  // from speed slider
   let lastTimestamp = 0;
 
-  const container = document.getElementById('canvasContainer');
-
-  // Setup p5 sketch (instance mode to avoid global conflicts)
-  new p5((p) => {
-    p.setup = function() {
-      // Create a canvas that fits nicely (square, but will be sized via CSS)
-      let sz = min(p.windowWidth * 0.92, p.windowHeight * 0.92, 900);
-      let canvas = p.createCanvas(900, 900);
-      canvas.parent(container);
-      p.frameRate(60);
-      p.noLoop();            // we'll manually redraw on slider change or animation frame
-      lastTimestamp = p.millis() / 1000;
-    };
-
-    // Draw the scene: background, translate, call drawSpiral
-    function redrawSpiral() {
-      p.background(20);
-      p.push();
-      p.translate(p.width / 2, p.height / 2);
-      // total rotation = manual offset (radians) + accumulated auto rotation
-      let totalRad = p.radians(manualAngleDeg) + autoAngleDeg;
-      drawSpiral(totalRad);
-      p.pop();
-    }
-
-    // Update auto rotation based on time delta
-    function updateAutoRotation(nowSec) {
-      if (rotationSpeedDegPerSec === 0) return;
-      let delta = nowSec - lastTimestamp;
-      if (delta > 0.05) delta = 0.05; // clamp
-      let angleInc = p.radians(rotationSpeedDegPerSec * delta);
-      autoAngleDeg += angleInc;
-      // keep autoAngle in reasonable range (optional)
-      autoAngleDeg = autoAngleDeg % p.TWO_PI;
-    }
-
-    // Redraw whenever needed (slider or animation frame)
-    p.draw = function() {
-      let now = p.millis() / 1000;
-      if (rotationSpeedDegPerSec !== 0) {
-        updateAutoRotation(now);
-        redrawSpiral();
-      }
-      lastTimestamp = now;
-    };
-
-    // Manual redraw when sliders change and speed = 0
-    function requestRedraw() {
-      if (rotationSpeedDegPerSec === 0) {
-        redrawSpiral();
-      }
-    }
-
-    // ----- bind HTML sliders -----
-    const rotateSlider = document.getElementById('rotateSlider');
-    const rotateVal = document.getElementById('rotateVal');
-    const speedSlider = document.getElementById('speedSlider');
-    const speedVal = document.getElementById('speedVal');
-
-    rotateSlider.addEventListener('input', (e) => {
-      manualAngleDeg = parseFloat(e.target.value);
-      rotateVal.innerText = manualAngleDeg.toFixed(1) + '°';
-      if (rotationSpeedDegPerSec === 0) redrawSpiral();
-      else {
-        // if speed > 0, we still redraw now to show immediate manual offset
-        redrawSpiral();
-      }
-    });
-
-    speedSlider.addEventListener('input', (e) => {
-      rotationSpeedDegPerSec = parseFloat(e.target.value);
-      speedVal.innerText = rotationSpeedDegPerSec.toFixed(0) + ' °/s';
-      if (rotationSpeedDegPerSec === 0) {
-        // stop auto accumulation, just redraw current state
-        redrawSpiral();
-      }
-      // when speed > 0, p.draw() will automatically keep updating.
-    });
-
-    // initial draw
-    p.windowResized = function() {
-      // canvas size stays 900, but CSS handles scaling.
-      redrawSpiral();
-    };
-
-    // start the loop only if speed > 0, but we need to check regularly.
-    // we'll let draw run always, but we only update and redraw if speed != 0.
-    // For performance, when speed=0 we still call draw once? Actually p.draw runs continuously,
-    // but we can early return. Better to use looping only when needed.
-    // However the current implementation: draw runs every frame, checks speed, updates if needed.
-    // That's fine (~60 fps idle is okay).
-    // Ensure first draw
+  function setup() {
+    // Create a fixed 900x900 canvas, attach to container
+    canvas = createCanvas(900, 900);
+    canvas.parent('canvasContainer');
+    frameRate(60);
+    lastTimestamp = millis() / 1000;
+    
+    // Initial draw
     redrawSpiral();
+  }
+
+  // Redraws the whole scene using current angles
+  function redrawSpiral() {
+    background(20);
+    push();
+    translate(width / 2, height / 2);
+    let totalRad = radians(manualAngleDeg) + autoAngleRad;
+    drawSpiral(totalRad);
+    pop();
+  }
+
+  // Update auto rotation based on elapsed time
+  function updateAutoRotation(nowSec) {
+    if (rotationSpeedDegPerSec === 0) return;
+    let delta = nowSec - lastTimestamp;
+    if (delta > 0.05) delta = 0.05; // safety clamp
+    let angleInc = radians(rotationSpeedDegPerSec * delta);
+    autoAngleRad += angleInc;
+    // keep within range (optional, doesn't affect drawing)
+    autoAngleRad = autoAngleRad % TWO_PI;
+  }
+
+  function draw() {
+    let now = millis() / 1000;
+    if (rotationSpeedDegPerSec !== 0) {
+      updateAutoRotation(now);
+      redrawSpiral();
+    }
+    lastTimestamp = now;
+  }
+
+  // --- HTML slider bindings ---
+  const rotateSlider = document.getElementById('rotateSlider');
+  const rotateVal = document.getElementById('rotateVal');
+  const speedSlider = document.getElementById('speedSlider');
+  const speedVal = document.getElementById('speedVal');
+
+  rotateSlider.addEventListener('input', (e) => {
+    manualAngleDeg = parseFloat(e.target.value);
+    rotateVal.innerText = manualAngleDeg.toFixed(1) + '°';
+    if (rotationSpeedDegPerSec === 0) {
+      redrawSpiral();   // immediate redraw when speed = 0
+    } else {
+      redrawSpiral();   // also update immediately to show manual offset even while rotating
+    }
   });
+
+  speedSlider.addEventListener('input', (e) => {
+    rotationSpeedDegPerSec = parseFloat(e.target.value);
+    speedVal.innerText = rotationSpeedDegPerSec.toFixed(0) + ' °/s';
+    if (rotationSpeedDegPerSec === 0) {
+      // stop auto rotation accumulation, but keep current autoAngleRad
+      redrawSpiral();
+    }
+  });
+
+  // Redraw on window resize (CSS handles scaling, but canvas remains 900x900)
+  function windowResized() {
+    // No need to resize canvas, just redraw to ensure correct positioning
+    redrawSpiral();
+  }
 </script>
 </body>
 </html>

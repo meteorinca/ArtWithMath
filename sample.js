@@ -1,16 +1,7 @@
-// Spiral pattern core – edit only the constants and the drawing logic.
+// Spiral pattern core – edit only the constants and drawing logic.
 // This function draws the spiral centered at (0,0) with an extra rotation (radians).
 function drawSpiral(extraRotation) {
   const R = 405;
-
-  // outer circle border (will be drawn after clipping, but we handle border later)
-  // we draw border twice? To simplify, we only draw border at the end in the main sketch.
-  // But to keep compatibility, we'll draw the border inside this function if needed.
-  // However clipping removes the outer edge, so we draw border after clip restore.
-  // We'll let the main sketch handle border to avoid double drawing.
-  // For now, draw only dots.
-
-  // Translate already done in main sketch, we assume (0,0) is center.
 
   // Save context for clipping
   drawingContext.save();
@@ -66,7 +57,7 @@ function drawSpiral(extraRotation) {
 
   drawingContext.restore();
 
-  // Redraw outer circle border (no fill)
+  // Redraw outer circle border
   noFill();
   stroke(255);
   strokeWeight(1.2);
