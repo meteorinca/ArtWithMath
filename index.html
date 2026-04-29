@@ -2,450 +2,266 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>spiral rotation · external pattern</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rotating spiral · p5.js sliders</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
-      background: linear-gradient(135deg, #0b0b1a 0%, #1a1a2e 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-      padding: 1.5rem;
       margin: 0;
-    }
-
-    .card {
-      background: rgba(20, 20, 40, 0.7);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: 3rem;
-      padding: 2.2rem 2.5rem;
-      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      background: #1a1a1a;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2rem;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      width: fit-content;
-      max-width: 95vw;
-    }
-
-    .canvas-wrapper {
-      background: #0a0a14;
-      border-radius: 2.5rem;
-      padding: 0.8rem;
-      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8), 0 20px 35px rgba(0, 0, 0, 0.7);
-      display: flex;
       justify-content: center;
-      align-items: center;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      min-height: 100vh;
+      font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
     }
-
     canvas {
       display: block;
-      max-width: 100%;
-      height: auto;
-      border-radius: 2rem;
-      background: #0f0f1a;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+      margin-bottom: 1.5rem;
     }
-
     .control-panel {
-      width: 100%;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      padding: 1.2rem 2.5rem;
+      border-radius: 50px;
       display: flex;
-      flex-direction: column;
-      gap: 1.6rem;
-      color: #e0ddf5;
+      gap: 2.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.3);
     }
-
     .slider-group {
       display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .label-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
+      align-items: center;
+      gap: 0.8rem;
+      color: #e0e0e0;
       font-weight: 500;
       letter-spacing: 0.3px;
     }
-
-    .label-row span:first-child {
+    .slider-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
       font-size: 0.95rem;
-      text-transform: uppercase;
-      opacity: 0.85;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
+      background: rgba(255,255,255,0.05);
+      padding: 0.4rem 1rem;
+      border-radius: 30px;
     }
-
-    .value-badge {
-      background: rgba(255, 255, 255, 0.12);
-      padding: 0.25rem 1rem;
-      border-radius: 2rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      backdrop-filter: blur(8px);
-      color: #ffdb8e;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    }
-
     input[type="range"] {
-      width: 100%;
-      height: 8px;
-      -webkit-appearance: none;
-      appearance: none;
-      background: linear-gradient(to right, #5f5fd0, #8a8ae0, #bdb2ff);
-      border-radius: 10px;
-      outline: none;
+      width: 130px;
       cursor: pointer;
-      box-shadow: 0 0 14px rgba(130, 130, 255, 0.6);
+      background: rgba(255,255,255,0.2);
+      height: 5px;
+      border-radius: 5px;
+      accent-color: #ffb56b;
     }
-
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 22px;
-      height: 22px;
-      background: white;
-      border-radius: 50%;
-      box-shadow: 0 0 20px #b8a9ff, 0 4px 12px black;
-      border: 2px solid #ffffffdd;
-      transition: 0.15s;
-      cursor: pointer;
-      margin-top: -7px;
-    }
-
-    input[type="range"]::-webkit-slider-thumb:hover {
-      transform: scale(1.15);
-      background: #fafaff;
-    }
-
-    .speed-slider {
-      background: linear-gradient(to right, #2a2a50, #5a5aaf, #b8b8ff);
-    }
-
-    .note {
-      font-size: 0.8rem;
-      opacity: 0.7;
-      margin-top: 0.2rem;
-      font-style: italic;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    button {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      padding: 0.5rem 1.5rem;
-      border-radius: 2.5rem;
-      color: white;
-      font-weight: 500;
-      backdrop-filter: blur(10px);
-      cursor: pointer;
-      transition: all 0.25s;
+    .value-display {
+      min-width: 55px;
+      display: inline-block;
+      background: rgba(0,0,0,0.4);
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      text-align: center;
       font-size: 0.9rem;
-      align-self: center;
-      letter-spacing: 0.4px;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
+      color: #ffd7a5;
+      font-weight: 600;
     }
-
-    button:hover {
-      background: rgba(255, 255, 255, 0.18);
-      border-color: rgba(255, 255, 255, 0.6);
-      box-shadow: 0 0 20px rgba(170, 160, 255, 0.6);
-    }
-
-    #reloadBtn {
-      margin-left: 0.5rem;
-      background: rgba(180, 130, 255, 0.15);
-      border-color: rgba(200, 160, 255, 0.4);
-    }
-
-    .button-group {
-      display: flex;
-      gap: 0.8rem;
-      align-items: center;
-      justify-content: center;
-    }
-
-    @media (max-width: 600px) {
-      .card {
-        padding: 1.5rem;
-        gap: 1.4rem;
-      }
-      .button-group {
-        flex-wrap: wrap;
+    @media (max-width: 700px) {
+      .control-panel {
+        flex-direction: column;
+        gap: 1.2rem;
+        padding: 1.2rem 2rem;
       }
     }
   </style>
+  <!-- p5.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
 </head>
 <body>
-  <div class="card">
-    <div class="canvas-wrapper">
-      <canvas id="spiralCanvas" width="520" height="520" aria-label="Rotating hypnotic spiral pattern"></canvas>
+  <!-- p5 canvas will be placed here automatically -->
+  <div class="control-panel">
+    <div class="slider-group">
+      <label>
+        <span style="font-size:1.2rem;">↻</span> Rotation
+        <input type="range" id="rotationSlider" min="0" max="360" value="0" step="0.1">
+        <span class="value-display" id="rotationValue">0.0°</span>
+      </label>
     </div>
-
-    <div class="control-panel">
-      <div class="slider-group">
-        <div class="label-row">
-          <span>🌀 Rotation angle</span>
-          <span class="value-badge" id="angleDisplay">0.0°</span>
-        </div>
-        <input type="range" id="angleSlider" min="0" max="360" value="0" step="0.1" aria-label="Rotation angle in degrees">
-        <div class="note">manual rotate · overrides speed when moved</div>
-      </div>
-
-      <div class="slider-group">
-        <div class="label-row">
-          <span>⚡ Rotation speed</span>
-          <span class="value-badge" id="speedDisplay">0.60x</span>
-        </div>
-        <input type="range" id="speedSlider" min="0" max="3" value="0.6" step="0.01" class="speed-slider" aria-label="Rotation speed multiplier">
-        <div class="note">0 = stopped · leftmost · drag right for faster</div>
-      </div>
-
-      <div class="button-group">
-        <button id="resetButton">
-          <span>↺</span> Reset angle
-        </button>
-        <button id="reloadBtn" title="Reload pattern">
-          <span>🔄</span> Reload pattern
-        </button>
-      </div>
+    <div class="slider-group">
+      <label>
+        <span style="font-size:1.2rem;">⚡</span> Speed
+        <input type="range" id="speedSlider" min="0" max="2.5" value="0.5" step="0.01">
+        <span class="value-display" id="speedValue">0.50</span>
+      </label>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-  
   <script>
-    (function() {
-      // DOM elements
-      const canvas = document.getElementById('spiralCanvas');
-      const ctx = canvas.getContext('2d');
-      const angleSlider = document.getElementById('angleSlider');
-      const speedSlider = document.getElementById('speedSlider');
-      const angleDisplay = document.getElementById('angleDisplay');
-      const speedDisplay = document.getElementById('speedDisplay');
-      const resetBtn = document.getElementById('resetButton');
-      const reloadBtn = document.getElementById('reloadBtn');
+    // ------------------------------------------------------------
+    // Global rotation state – shared between UI and p5 sketch
+    // ------------------------------------------------------------
+    let rotationAngle = 0;          // current cumulative rotation (radians)
+    let rotationSpeed = 0.5;       // radians per second (controlled by speed slider)
 
-      // State
-      let patternCanvas = null;
-      let patternReady = false;
-      let currentAngle = 0;
-      let rotationSpeed = 0.6;
-      let animationId = null;
-      let lastTime = 0;
-      
-      const SIZE = 520;
+    // DOM elements for sliders & displays
+    const rotationSlider = document.getElementById('rotationSlider');
+    const rotationValue = document.getElementById('rotationValue');
+    const speedSlider = document.getElementById('speedSlider');
+    const speedValue = document.getElementById('speedValue');
 
-      // Generate the spiral pattern using p5.js
-      function drawSpiralPattern() {
-        return new Promise((resolve) => {
-          const sketch = (p) => {
-            p.setup = () => {
-              p.createCanvas(SIZE, SIZE);
-              p.noLoop();
-              
-              // Draw beautiful spiral pattern
-              p.background(15, 15, 26);
-              p.translate(SIZE/2, SIZE/2);
-              
-              // Draw multiple spiraling arms
-              for (let arm = 0; arm < 12; arm++) {
-                const armAngle = (arm / 12) * p.TWO_PI;
-                
-                p.strokeWeight(2);
-                for (let i = 0; i < 360; i += 2) {
-                  const angle = p.radians(i * 3) + armAngle;
-                  const radius = i * 0.7;
-                  const x = p.cos(angle) * radius;
-                  const y = p.sin(angle) * radius;
-                  
-                  // Color gradient
-                  const hue = (i / 2 + arm * 30) % 360;
-                  p.stroke(hue, 80, 90);
-                  
-                  if (i > 0) {
-                    p.line(prevX, prevY, x, y);
-                  }
-                  
-                  var prevX = x;
-                  var prevY = y;
-                }
-              }
-              
-              // Add some dots
-              for (let i = 0; i < 200; i++) {
-                const angle = p.random(p.TWO_PI);
-                const radius = p.random(30, 250);
-                const x = p.cos(angle) * radius;
-                const y = p.sin(angle) * radius;
-                const hue = p.random(360);
-                p.fill(hue, 70, 90);
-                p.noStroke();
-                p.circle(x, y, p.random(2, 5));
-              }
-              
-              // Capture the canvas
-              const offCanvas = document.createElement('canvas');
-              offCanvas.width = SIZE;
-              offCanvas.height = SIZE;
-              const offCtx = offCanvas.getContext('2d');
-              offCtx.drawImage(p.canvas, 0, 0);
-              
-              p.remove();
-              resolve(offCanvas);
-            };
-          };
+    // Initialize from sliders
+    rotationAngle = radians(parseFloat(rotationSlider.value));
+    rotationSpeed = parseFloat(speedSlider.value);
+    
+    // Update displays
+    rotationValue.textContent = parseFloat(rotationSlider.value).toFixed(1) + '°';
+    speedValue.textContent = rotationSpeed.toFixed(2);
+
+    // --- Event listeners: manual rotation adjustment ---
+    rotationSlider.addEventListener('input', (e) => {
+      const deg = parseFloat(e.target.value);
+      rotationAngle = radians(deg);
+      rotationValue.textContent = deg.toFixed(1) + '°';
+      // Redraw once if p5 is ready (but animation loop will handle continuous update)
+      if (window.redrawSpiral) window.redrawSpiral();
+    });
+
+    // --- Speed slider changes rotationSpeed ---
+    speedSlider.addEventListener('input', (e) => {
+      rotationSpeed = parseFloat(e.target.value);
+      speedValue.textContent = rotationSpeed.toFixed(2);
+    });
+
+    // ------------------------------------------------------------
+    // p5.js sketch – wraps your sample.js logic with rotation
+    // ------------------------------------------------------------
+    new p5((p) => {
+
+      // We'll store the original drawing logic but add rotation transform.
+      // The draw function will be called continuously because we use a loop.
+
+      p.setup = function() {
+        const canvas = p.createCanvas(900, 900);
+        canvas.parent(document.body); // place canvas before control panel? 
+        // Actually we want canvas then panel. p5 appends canvas to body by default.
+        // We'll move the control panel after canvas using a small trick.
+        const panel = document.querySelector('.control-panel');
+        if (panel) {
+          // Ensure canvas is placed before the panel in DOM
+          const body = document.body;
+          body.insertBefore(canvas.elt, panel);
+        }
+        
+        // No loop in original, but we need continuous animation for speed.
+        p.loop();
+        
+        // Expose a redraw trigger (though loop does it automatically)
+        window.redrawSpiral = () => p.redraw();
+      };
+
+      p.draw = function() {
+        // --- accumulate rotation based on speed and delta time ---
+        // deltaTime is in milliseconds, convert to seconds
+        let dt = p.deltaTime / 1000;
+        // clamp to avoid jumps when tab inactive (optional)
+        if (dt > 0.1) dt = 0.016; 
+        
+        // Update rotation angle continuously using speed
+        rotationAngle += rotationSpeed * dt;
+        
+        // Keep angle within 0..TWO_PI for slider sync, but not strictly necessary.
+        // Normalize for display consistency.
+        rotationAngle = rotationAngle % p.TWO_PI;
+        
+        // Update rotation slider to reflect current angle (in degrees)
+        const currentDeg = p.degrees(rotationAngle) % 360;
+        // Avoid updating slider if user is currently dragging it (to prevent fight)
+        if (document.activeElement !== rotationSlider) {
+          rotationSlider.value = currentDeg.toFixed(1);
+          rotationValue.textContent = currentDeg.toFixed(1) + '°';
+        }
+
+        // --- Now draw the spiral with the current rotation applied ---
+        p.background(20);
+        
+        p.push();
+        // Translate to center and apply the cumulative rotation
+        p.translate(p.width / 2, p.height / 2);
+        p.rotate(rotationAngle);
+        
+        // ----- original spiral drawing (from sample.js, adapted) -----
+        const R = 405;
+        
+        // outer circle
+        p.noFill();
+        p.stroke(255);
+        p.strokeWeight(1.2);
+        p.ellipse(0, 0, 2 * R);
+        
+        // clip dots to circle using drawingContext
+        p.drawingContext.save();
+        p.drawingContext.beginPath();
+        p.drawingContext.arc(0, 0, R - 1.5, 0, p.TWO_PI);
+        p.drawingContext.clip();
+        
+        p.noStroke();
+        p.fill(255);
+        
+        // main controls (same as sample.js)
+        const K = 68;
+        const r0 = 0.0105;
+        const growth = 0.053;
+        const ringTwist = 0.132;
+        const tight = 10.85;
+        const phase0 = 0.72;
+        const arms = 2;
+        
+        for (let j = 0; ; j++) {
+          const nr = r0 * Math.exp(growth * j);
+          if (nr > 0.995) break;
           
-          const container = document.createElement('div');
-          container.style.display = 'none';
-          document.body.appendChild(container);
-          new p5(sketch, container);
+          const r = nr * R;
           
-          // Clean up container after a delay
-          setTimeout(() => {
-            if (container.parentNode) {
-              document.body.removeChild(container);
-            }
-          }, 100);
-        });
-      }
-
-      // Draw the rotated pattern on the main canvas
-      function render() {
-        ctx.clearRect(0, 0, SIZE, SIZE);
-        ctx.fillStyle = '#0f0f1a';
-        ctx.fillRect(0, 0, SIZE, SIZE);
-        
-        if (!patternReady || !patternCanvas) {
-          ctx.fillStyle = '#ffffff';
-          ctx.font = '16px "Segoe UI"';
-          ctx.textAlign = 'center';
-          ctx.fillText('Loading...', SIZE/2, SIZE/2);
-          return;
+          for (let k = 0; k < K; k++) {
+            const theta = p.TWO_PI * k / K + j * ringTwist;
+            
+            const p_phase = arms * theta + tight * Math.log(nr) + phase0;
+            const wave = 0.5 + 0.5 * Math.cos(p_phase);
+            
+            const sharp = 1.7 + 1.4 * (1.0 - nr);
+            const band = Math.pow(wave, sharp);
+            
+            const baseSize = 0.45 + 6.9 * Math.pow(nr, 0.92);
+            const armBoost = 20.8 * Math.pow(nr, 1.06) * band;
+            const d = baseSize + armBoost;
+            
+            const x = r * Math.cos(theta);
+            const y = r * Math.sin(theta);
+            
+            if (r + d * 0.52 > R - 1.5) continue;
+            
+            p.ellipse(x, y, d);
+          }
         }
         
-        ctx.save();
-        ctx.translate(SIZE/2, SIZE/2);
-        ctx.rotate(currentAngle * Math.PI / 180);
-        ctx.drawImage(patternCanvas, -SIZE/2, -SIZE/2);
-        ctx.restore();
-      }
-
-      // Animation loop
-      function animate(timestamp) {
-        if (!lastTime) lastTime = timestamp;
+        p.drawingContext.restore();
         
-        const delta = (timestamp - lastTime) / 1000;
-        lastTime = timestamp;
+        // redraw circle border on top
+        p.noFill();
+        p.stroke(255);
+        p.strokeWeight(1.2);
+        p.ellipse(0, 0, 2 * R);
         
-        // Apply rotation
-        if (rotationSpeed > 0.001) {
-          currentAngle += rotationSpeed * 90 * delta; // 90 degrees per second at speed 1
-          currentAngle = currentAngle % 360;
-          if (currentAngle < 0) currentAngle += 360;
-          
-          // Update slider and display
-          angleSlider.value = currentAngle;
-          angleDisplay.textContent = currentAngle.toFixed(1) + '°';
-        }
-        
-        render();
-        animationId = requestAnimationFrame(animate);
-      }
+        p.pop();
+        // ----- end spiral drawing -----
+      };
 
-      // Event handlers
-      angleSlider.addEventListener('input', () => {
-        currentAngle = parseFloat(angleSlider.value);
-        angleDisplay.textContent = currentAngle.toFixed(1) + '°';
-        rotationSpeed = 0;
-        speedSlider.value = 0;
-        speedDisplay.textContent = '0.00x';
-        render();
-      });
-
-      speedSlider.addEventListener('input', () => {
-        rotationSpeed = parseFloat(speedSlider.value);
-        speedDisplay.textContent = rotationSpeed.toFixed(2) + 'x';
-      });
-
-      resetBtn.addEventListener('click', () => {
-        currentAngle = 0;
-        angleSlider.value = 0;
-        angleDisplay.textContent = '0.0°';
-        render();
-      });
-
-      reloadBtn.addEventListener('click', async () => {
-        patternReady = false;
-        reloadBtn.style.background = 'rgba(255, 255, 150, 0.3)';
-        
-        try {
-          patternCanvas = await drawSpiralPattern();
-          patternReady = true;
-          render();
-          reloadBtn.style.background = 'rgba(150, 255, 150, 0.3)';
-        } catch (err) {
-          console.error('Failed to reload pattern:', err);
-          reloadBtn.style.background = 'rgba(255, 150, 150, 0.3)';
-        }
-        
-        setTimeout(() => {
-          reloadBtn.style.background = 'rgba(180, 130, 255, 0.15)';
-        }, 500);
-      });
-
-      // Initialize
-      async function init() {
-        // Set initial display values
-        angleDisplay.textContent = '0.0°';
-        speedDisplay.textContent = '0.60x';
-        
-        // Generate initial pattern
-        try {
-          patternCanvas = await drawSpiralPattern();
-          patternReady = true;
-        } catch (err) {
-          console.error('Failed to generate pattern:', err);
-        }
-        
-        // Start animation
-        lastTime = performance.now();
-        animationId = requestAnimationFrame(animate);
-        
-        // Initial render
-        render();
-      }
-
-      // Start when p5 is loaded
-      if (typeof p5 !== 'undefined') {
-        init();
-      } else {
-        window.addEventListener('load', init);
-      }
-
-      // Cleanup
-      window.addEventListener('beforeunload', () => {
-        if (animationId) {
-          cancelAnimationFrame(animationId);
-        }
-      });
-    })();
+      // Optional: handle window resize if needed, but fixed canvas size.
+    });
   </script>
 </body>
 </html>
