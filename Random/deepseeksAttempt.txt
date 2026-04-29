@@ -1,0 +1,76 @@
+function setup() {
+  createCanvas(900, 900);
+  noLoop();   // static image – remove or use frameCount for animation
+}
+
+function draw() {
+  background(20);
+  translate(width / 2, height / 2);
+
+  const R = 390;
+
+  // cyan background disk
+  noStroke();
+  fill(25, 185, 215);
+  ellipse(0, 0, 2 * R);
+
+  fill(255);
+  noStroke();
+
+  // --- Phyllotaxis positioning (Vogel model) ---
+  const totalDots = 1800;                     // fewer dots → clean spacing
+  const goldenAngle = radians(137.508);       // the golden angle in radians
+  const c = (R - 8) / sqrt(totalDots - 1);    // scale so edge is near R
+
+  // --- Logarithmic spiral size modulation ---
+  const arms   = 2;          // number of visible spiral arms
+  const twist  = 4.15;       // how tightly the arms wind
+  const phase  = -0.45;      // rotation of the whole pattern
+  const sharp  = 5.0;        // arm sharpness (higher = tighter, cleaner arms)
+
+  const minSize = 1.2;
+  const maxSize = 7.0;
+
+  const baseValley = 1.1;    // size multiplier in the “gaps” between arms
+  const armBoost   = 1.9;    // extra size on the arms
+
+  for (let n = 0; n < totalDots; n++) {
+    // Phyllotaxis position
+    let r     = c * sqrt(n);
+    let theta = n * goldenAngle;
+
+    // Stop if we exceed the disk (with a small safety margin)
+    if (r > R - 5) break;
+
+    // Normalised radius for the log‑spiral calculation
+    let rNorm = r / R;
+    if (rNorm < 0.001) rNorm = 0.001;   // avoid log(0)
+
+    // Scalar argument of the spiral‑arm wave
+    let psi = arms * (theta - twist * log(rNorm) + phase);
+
+    // Convert the wave to a 0…1 band with adjustable sharpness
+    let band = 0.5 + 0.5 * sin(psi);
+    band = pow(band, sharp);
+
+    // Base dot size grows gradually outward (slow start, then accelerates)
+    let baseDot = lerp(minSize, maxSize, pow(r / R, 0.7));
+
+    // Final diameter – arms are boosted, valleys stay small but visible
+    let d = baseDot * (baseValley + armBoost * band);
+
+    let x = r * cos(theta);
+    let y = r * sin(theta);
+
+    // Keep dots fully inside the background disk
+    if (dist(0, 0, x, y) < R - d * 0.55) {
+      ellipse(x, y, d);
+    }
+  }
+
+  // Outer rim
+  noFill();
+  stroke(245);
+  strokeWeight(2.5);
+  ellipse(0, 0, 2 * R);
+}
