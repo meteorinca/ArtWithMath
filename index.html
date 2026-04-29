@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>PNG rotation · center slider · speed control</title>
+  <title>spiral rotation · speed control</title>
   <style>
     * {
       margin: 0;
@@ -12,7 +13,7 @@
     }
 
     body {
-      background: linear-gradient(135deg, #1e1e2f 0%, #2a2a4a 100%);
+      background: linear-gradient(135deg, #0b0b1a 0%, #1a1a2e 100%);
       min-height: 100vh;
       display: flex;
       justify-content: center;
@@ -23,46 +24,46 @@
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      background: rgba(20, 20, 40, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: 3rem;
-      padding: 2.5rem 2.8rem;
-      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      padding: 2.2rem 2.5rem;
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2.2rem;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      gap: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
       width: fit-content;
       max-width: 95vw;
     }
 
     .canvas-wrapper {
-      background: rgba(10, 10, 20, 0.5);
+      background: #0a0a14;
       border-radius: 2.5rem;
-      padding: 1.2rem;
-      box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.6), 0 18px 30px rgba(0, 0, 0, 0.5);
+      padding: 0.8rem;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8), 0 20px 35px rgba(0, 0, 0, 0.7);
       display: flex;
       justify-content: center;
       align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
 
     canvas {
       display: block;
       max-width: 100%;
       height: auto;
-      border-radius: 1.8rem;
-      background: transparent;
-      transition: filter 0.2s ease;
+      border-radius: 2rem;
+      background: #0f0f1a;
     }
 
     .control-panel {
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 1.8rem;
-      color: #f0eef8;
+      gap: 1.6rem;
+      color: #e0ddf5;
     }
 
     .slider-group {
@@ -80,23 +81,23 @@
     }
 
     .label-row span:first-child {
-      font-size: 1rem;
+      font-size: 0.95rem;
       text-transform: uppercase;
-      opacity: 0.8;
+      opacity: 0.85;
       display: flex;
       align-items: center;
       gap: 0.3rem;
     }
 
     .value-badge {
-      background: rgba(255, 255, 255, 0.15);
-      padding: 0.25rem 0.9rem;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 0.25rem 1rem;
       border-radius: 2rem;
       font-size: 0.9rem;
       font-weight: 600;
       backdrop-filter: blur(8px);
-      color: #ffecaa;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      color: #ffdb8e;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
 
     input[type="range"] {
@@ -104,11 +105,11 @@
       height: 8px;
       -webkit-appearance: none;
       appearance: none;
-      background: linear-gradient(to right, #7f7fd5, #86a8e7, #91eae4);
+      background: linear-gradient(to right, #5f5fd0, #8a8ae0, #bdb2ff);
       border-radius: 10px;
       outline: none;
       cursor: pointer;
-      box-shadow: 0 0 12px rgba(120, 140, 255, 0.7);
+      box-shadow: 0 0 14px rgba(130, 130, 255, 0.6);
     }
 
     input[type="range"]::-webkit-slider-thumb {
@@ -118,7 +119,7 @@
       height: 22px;
       background: white;
       border-radius: 50%;
-      box-shadow: 0 0 18px #c4b5fd, 0 4px 10px black;
+      box-shadow: 0 0 20px #b8a9ff, 0 4px 12px black;
       border: 2px solid #ffffffdd;
       transition: 0.15s;
       cursor: pointer;
@@ -127,11 +128,11 @@
 
     input[type="range"]::-webkit-slider-thumb:hover {
       transform: scale(1.15);
-      background: #f8f8ff;
+      background: #fafaff;
     }
 
     .speed-slider {
-      background: linear-gradient(to right, #2b2b4a, #5b5b9a, #b8b8ff);
+      background: linear-gradient(to right, #2a2a50, #5a5aaf, #b8b8ff);
     }
 
     .note {
@@ -145,9 +146,9 @@
     }
 
     button {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.07);
       border: 1px solid rgba(255, 255, 255, 0.25);
-      padding: 0.5rem 1.4rem;
+      padding: 0.5rem 1.5rem;
       border-radius: 2.5rem;
       color: white;
       font-weight: 500;
@@ -163,15 +164,15 @@
     }
 
     button:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.18);
       border-color: rgba(255, 255, 255, 0.6);
-      box-shadow: 0 0 18px rgba(180, 180, 255, 0.6);
+      box-shadow: 0 0 20px rgba(170, 160, 255, 0.6);
     }
 
-    @media (max-width: 550px) {
+    @media (max-width: 600px) {
       .card {
-        padding: 1.8rem;
-        gap: 1.5rem;
+        padding: 1.5rem;
+        gap: 1.4rem;
       }
     }
   </style>
@@ -179,25 +180,25 @@
 <body>
   <div class="card">
     <div class="canvas-wrapper">
-      <canvas id="imageCanvas" aria-label="Rotating PNG image from my.png"></canvas>
+      <canvas id="spiralCanvas" aria-label="Rotating hypnotic spiral pattern"></canvas>
     </div>
 
     <div class="control-panel">
       <!-- Rotation angle slider -->
       <div class="slider-group">
         <div class="label-row">
-          <span>🔄 Rotation angle</span>
-          <span class="value-badge" id="angleDisplay">0°</span>
+          <span>🌀 Rotation angle</span>
+          <span class="value-badge" id="angleDisplay">0.0°</span>
         </div>
         <input type="range" id="angleSlider" min="0" max="360" value="0" step="0.1" aria-label="Rotation angle in degrees">
-        <div class="note">0° = upright · continuous rotation</div>
+        <div class="note">manual rotate · overrides speed when moved</div>
       </div>
 
       <!-- Speed slider (0 = stopped, left is 0) -->
       <div class="slider-group">
         <div class="label-row">
           <span>⚡ Rotation speed</span>
-          <span class="value-badge" id="speedDisplay">0.0x</span>
+          <span class="value-badge" id="speedDisplay">0.60x</span>
         </div>
         <input type="range" id="speedSlider" min="0" max="3" value="0.6" step="0.01" class="speed-slider" aria-label="Rotation speed multiplier">
         <div class="note">0 = stopped · leftmost · drag right for faster</div>
@@ -212,7 +213,7 @@
   <script>
     (function() {
       // ----- DOM elements -----
-      const canvas = document.getElementById('imageCanvas');
+      const canvas = document.getElementById('spiralCanvas');
       const ctx = canvas.getContext('2d');
 
       const angleSlider = document.getElementById('angleSlider');
@@ -221,176 +222,240 @@
       const speedDisplay = document.getElementById('speedDisplay');
       const resetBtn = document.getElementById('resetButton');
 
-      // ----- Image & state -----
-      let image = null;
-      let currentAngle = 0.0;          // in degrees
-      let rotationSpeed = 0.6;        // default speed (degrees per frame ~ scaled)
-      
-      // Animation & timing
+      // ----- Offscreen canvas for the static spiral pattern -----
+      // We'll render the spiral once into an offscreen canvas, then draw it rotated.
+      let spiralPatternCanvas = null;
+      let patternReady = false;
+
+      // ----- Rotation state -----
+      let currentAngle = 0.0;          // degrees
+      let rotationSpeed = 0.6;        // default speed
+
+      // Animation
       let animationFrameId = null;
       let lastTimestamp = 0;
-      
-      // Canvas dimensions (will be set based on image natural size, but constrained)
-      const MAX_CANVAS_WIDTH = 520;
-      const MAX_CANVAS_HEIGHT = 520;
 
-      // ----- Load the PNG image -----
-      function loadImage() {
-        image = new Image();
-        // The PNG file must be in the same directory as this HTML file.
-        image.src = 'my.png';
-        
-        image.onload = () => {
-          // Set canvas dimensions respecting max size but keeping aspect ratio
-          const naturalWidth = image.naturalWidth;
-          const naturalHeight = image.naturalHeight;
-          
-          let drawWidth = naturalWidth;
-          let drawHeight = naturalHeight;
-          
-          if (naturalWidth > MAX_CANVAS_WIDTH || naturalHeight > MAX_CANVAS_HEIGHT) {
-            const widthRatio = MAX_CANVAS_WIDTH / naturalWidth;
-            const heightRatio = MAX_CANVAS_HEIGHT / naturalHeight;
-            const ratio = Math.min(widthRatio, heightRatio);
-            drawWidth = Math.floor(naturalWidth * ratio);
-            drawHeight = Math.floor(naturalHeight * ratio);
+      // Canvas display size (the visible canvas size)
+      const DISPLAY_SIZE = 520;       // matches original 900 but scaled down nicely
+
+      // ----- Generate the spiral pattern (once) onto an offscreen canvas -----
+      function generateSpiralPattern() {
+        // Use a high-resolution offscreen canvas for the pattern (900x900 as original)
+        const size = 900;
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = size;
+        offCanvas.height = size;
+        const offCtx = offCanvas.getContext('2d');
+
+        // --- exactly the p5.js spiral code adapted to raw canvas ---
+        const width = size;
+        const height = size;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const R = 405;
+
+        // background
+        offCtx.fillStyle = '#141414';  // close to background(20) in p5 (20 is ~ #141414)
+        offCtx.fillRect(0, 0, width, height);
+
+        // translate to center
+        offCtx.save();
+        offCtx.translate(centerX, centerY);
+
+        // outer circle
+        offCtx.beginPath();
+        offCtx.arc(0, 0, R, 0, Math.PI * 2);
+        offCtx.strokeStyle = '#ffffff';
+        offCtx.lineWidth = 1.2;
+        offCtx.stroke();
+
+        // clip to circle interior
+        offCtx.save();
+        offCtx.beginPath();
+        offCtx.arc(0, 0, R - 1.5, 0, Math.PI * 2);
+        offCtx.clip();
+
+        // dot drawing settings
+        offCtx.fillStyle = '#ffffff';
+
+        // main controls (same as original)
+        const K = 89;
+        const r0 = 0.0082;
+        const growth = 0.048;
+        const ringTwist = 0.141;
+        const tight = 11.2;
+        const phase0 = 0.65;
+        const arms = 2;
+
+        for (let j = 0; ; j++) {
+          const nr = r0 * Math.exp(growth * j);
+          if (nr > 0.995) break;
+
+          const r = nr * R;
+
+          for (let k = 0; k < K; k++) {
+            const theta = (Math.PI * 2 * k) / K + j * ringTwist;
+
+            // two-arm log-spiral phase
+            const p = arms * theta + tight * Math.log(nr) + phase0;
+
+            // arm intensity
+            const wave = 0.5 + 0.5 * Math.cos(p);
+
+            // sharpness
+            const sharp = 3.8 + 3.5 * (1.0 - nr * nr);
+            const band = Math.pow(wave, sharp);
+
+            // dot sizes
+            const baseSize = 0.25 + 4.2 * Math.pow(nr, 0.85);
+            const armBoost = 22.0 * Math.pow(nr, 1.15) * band;
+
+            // beading effect
+            const beadPulse = 0.75 + 0.25 * Math.pow(Math.abs(Math.cos(p * 1.3 + nr * 12.0)), 1.5);
+
+            const d = (baseSize + armBoost) * (0.85 + 0.15 * beadPulse);
+
+            const x = r * Math.cos(theta);
+            const y = r * Math.sin(theta);
+
+            // keep dot inside border
+            if (r + d * 0.52 > R - 1.5) continue;
+
+            // draw ellipse (dot)
+            offCtx.beginPath();
+            offCtx.ellipse(x, y, d / 2, d / 2, 0, 0, Math.PI * 2);
+            offCtx.fill();
           }
-          
-          canvas.width = drawWidth;
-          canvas.height = drawHeight;
-          
-          // Initialize angle from slider (0)
-          currentAngle = parseFloat(angleSlider.value);
-          // Draw first frame
-          drawImageRotated();
-          
-          // Start animation loop if not already running
-          if (animationFrameId === null) {
-            lastTimestamp = performance.now();
-            animationFrameId = requestAnimationFrame(animationLoop);
-          }
-        };
-        
-        image.onerror = () => {
-          console.warn('my.png could not be loaded. Make sure it exists in the same folder.');
-          // Draw a placeholder message on canvas
-          canvas.width = 400;
-          canvas.height = 260;
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.fillStyle = '#2a2a4a';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.font = '16px "Segoe UI", Roboto';
-          ctx.fillStyle = '#ddddff';
-          ctx.textAlign = 'center';
-          ctx.fillText('🖼️ my.png not found', canvas.width/2, canvas.height/2 - 10);
-          ctx.fillText('Place image in same directory', canvas.width/2, canvas.height/2 + 30);
-          
-          // Still allow UI to work, but animation will skip draw
-          if (animationFrameId === null) {
-            lastTimestamp = performance.now();
-            animationFrameId = requestAnimationFrame(animationLoop);
-          }
-        };
+        }
+
+        // restore clip
+        offCtx.restore();
+
+        // redraw circle border on top
+        offCtx.beginPath();
+        offCtx.arc(0, 0, R, 0, Math.PI * 2);
+        offCtx.strokeStyle = '#ffffff';
+        offCtx.lineWidth = 1.2;
+        offCtx.stroke();
+
+        offCtx.restore(); // restore translation
+
+        return offCanvas;
       }
 
-      // ----- Drawing function: rotates image around its center -----
-      function drawImageRotated() {
-        if (!canvas || !ctx) return;
-        
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // If image not loaded or broken, draw nothing (or keep placeholder)
-        if (!image || !image.complete || image.naturalWidth === 0) {
-          // Optionally draw subtle background
-          ctx.fillStyle = '#1e1e30';
+      // ----- Initialize canvas size and generate pattern -----
+      function setupCanvasAndPattern() {
+        canvas.width = DISPLAY_SIZE;
+        canvas.height = DISPLAY_SIZE;
+
+        // Generate spiral pattern once (it's expensive, so we cache it)
+        if (!spiralPatternCanvas) {
+          spiralPatternCanvas = generateSpiralPattern();
+          patternReady = true;
+        }
+      }
+
+      // ----- Draw the rotated spiral onto the visible canvas -----
+      function drawRotatedSpiral() {
+        if (!canvas || !ctx || !patternReady || !spiralPatternCanvas) {
+          // fallback drawing
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = '#141414';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.font = '14px "Segoe UI"';
           ctx.fillStyle = '#aaa';
+          ctx.font = '14px "Segoe UI"';
           ctx.textAlign = 'center';
-          ctx.fillText('⏳ loading image...', canvas.width/2, canvas.height/2);
+          ctx.fillText('generating spiral...', canvas.width/2, canvas.height/2);
           return;
         }
-        
+
         const w = canvas.width;
         const h = canvas.height;
         const centerX = w / 2;
         const centerY = h / 2;
+
+        ctx.clearRect(0, 0, w, h);
         
-        // Save context and apply rotation around canvas center
+        // Draw background matching spiral background
+        ctx.fillStyle = '#141414';
+        ctx.fillRect(0, 0, w, h);
+
         ctx.save();
         ctx.translate(centerX, centerY);
-        
-        // Convert current angle to radians
+
+        // Convert angle to radians
         const angleRad = (currentAngle * Math.PI) / 180;
         ctx.rotate(angleRad);
-        
-        // Draw image centered: we draw from -imgDrawWidth/2, -imgDrawHeight/2
-        // The image draw size matches canvas dimensions (already scaled to fit)
+
+        // Draw the offscreen spiral pattern centered.
+        // The offscreen canvas is 900x900, we scale it to fit DISPLAY_SIZE.
+        const scale = DISPLAY_SIZE / 900;
         ctx.drawImage(
-          image,
-          -w / 2,
-          -h / 2,
-          w,
-          h
+          spiralPatternCanvas,
+          -DISPLAY_SIZE / 2,
+          -DISPLAY_SIZE / 2,
+          DISPLAY_SIZE,
+          DISPLAY_SIZE
         );
+        // Note: drawImage with destination width/height already scales.
+        // Actually we can just use the scaled dimensions directly.
+        // Simpler: 
+        // ctx.drawImage(spiralPatternCanvas, -w/2, -h/2, w, h);
         
+        ctx.restore();
+
+        // The above works but careful: we already set translate and rotate.
+        // Let's refine the drawImage call to be precise.
+        // We'll redo the drawing part for clarity:
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = '#141414';
+        ctx.fillRect(0, 0, w, h);
+        
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(angleRad);
+        ctx.drawImage(spiralPatternCanvas, -w/2, -h/2, w, h);
         ctx.restore();
       }
 
-      // ----- Animation loop: updates angle based on speed and time -----
+      // ----- Animation loop -----
       function animationLoop(timestamp) {
         if (lastTimestamp === 0) {
           lastTimestamp = timestamp;
           animationFrameId = requestAnimationFrame(animationLoop);
-          drawImageRotated();
+          drawRotatedSpiral();
           return;
         }
-        
-        // Calculate delta time in seconds
-        const deltaTime = Math.min(0.1, (timestamp - lastTimestamp) / 1000); // cap to avoid large jumps
+
+        const deltaTime = Math.min(0.1, (timestamp - lastTimestamp) / 1000);
         lastTimestamp = timestamp;
-        
-        // Update angle based on rotation speed (degrees per second)
-        // speed slider value is interpreted as degrees per second factor.
-        // Example: speed = 1.0 means 60 degrees per second? We'll use a multiplier.
-        // Let's make speed represent "factor * 60 degrees per second" for intuitive feel.
-        // Actually simpler: speed value = degrees per frame? No, use time-based.
-        // Define base speed: speed = 1.0 -> 90 degrees per second (smooth)
+
+        // Update angle based on speed (degrees per second)
         const DEGREES_PER_SECOND_AT_SPEED_1 = 90.0;
-        
         if (rotationSpeed > 0.001) {
-          // Increase angle continuously
           currentAngle += rotationSpeed * DEGREES_PER_SECOND_AT_SPEED_1 * deltaTime;
-          // Normalize angle to [0, 360) range for display and consistency
           currentAngle = currentAngle % 360;
           if (currentAngle < 0) currentAngle += 360;
-          
-          // Update the angle slider to reflect the changing angle (without triggering re-draw loop)
-          // Use programmatic update without dispatching 'input' event to avoid recursion.
+
+          // Update slider and display to reflect continuous rotation
           angleSlider.value = currentAngle;
-          // Update display
           angleDisplay.textContent = currentAngle.toFixed(1) + '°';
         }
-        
-        // Always redraw
-        drawImageRotated();
-        
-        // Continue animation
+
+        drawRotatedSpiral();
+
         animationFrameId = requestAnimationFrame(animationLoop);
       }
 
-      // ----- Sync UI sliders to state -----
+      // ----- UI handlers -----
       function updateAngleFromSlider() {
         const newAngle = parseFloat(angleSlider.value);
         if (isNaN(newAngle)) return;
         currentAngle = newAngle;
         angleDisplay.textContent = currentAngle.toFixed(1) + '°';
-        // No need to call drawImageRotated here because animation loop will draw on next frame.
-        // But for immediate responsiveness when dragging while speed=0, we could draw instantly.
-        // We'll draw immediately to avoid lag when stopped.
+        // Immediate draw when speed is zero (manual control)
         if (Math.abs(rotationSpeed) < 0.001) {
-          drawImageRotated();
+          drawRotatedSpiral();
         }
       }
 
@@ -399,50 +464,20 @@
         if (isNaN(newSpeed)) return;
         rotationSpeed = newSpeed;
         speedDisplay.textContent = rotationSpeed.toFixed(2) + 'x';
-        
-        // If speed becomes 0 (or very small), we might want to stop animation? 
-        // Animation continues but angle won't change. That's fine.
       }
 
-      // Reset angle to 0
       function resetAngle() {
         currentAngle = 0.0;
         angleSlider.value = 0.0;
         angleDisplay.textContent = '0.0°';
-        // If speed is 0, draw immediately; otherwise animation loop picks up.
         if (Math.abs(rotationSpeed) < 0.001) {
-          drawImageRotated();
+          drawRotatedSpiral();
         }
       }
 
-      // ----- Event listeners -----
-      angleSlider.addEventListener('input', updateAngleFromSlider);
-      
-      speedSlider.addEventListener('input', updateSpeedFromSlider);
-      
-      resetBtn.addEventListener('click', resetAngle);
-
-      // Also handle case when user manually changes angle while speed > 0:
-      // The animation loop continuously updates currentAngle based on speed.
-      // If user drags angle slider while speed > 0, the animation will overwrite it next frame.
-      // To make manual angle adjustment "stick" temporarily, we could pause speed? 
-      // Better: when user interacts with angle slider, we set the angle and optionally set speed to 0?
-      // The prompt doesn't specify that. We'll keep it as is: manual angle change will be overridden 
-      // by continuous rotation if speed > 0. That's expected behavior (speed rotates it).
-      // But we can add a small UX: if user drags angle slider, we could temporarily set speed to 0?
-      // Let's not override speed automatically; user can set speed to 0 to manually control angle.
-      // Add an additional hint: when angle slider is changed, we still set currentAngle.
-      // However animation loop recalculates based on speed. To prevent conflict, we 
-      // could pause speed when angle slider is actively used? That might be confusing.
-      // We'll keep it straightforward: speed rotates continuously; angle slider shows current angle.
-      
-      // For better manual control: if user changes angle slider while speed > 0, we could
-      // optionally set speed to 0? Many demos do that. Let's implement a subtle behavior:
-      // When user manually adjusts angle slider (via input), we set speed to 0 so they can 
-      // freely position the image. This matches expectation: "I want to rotate manually".
-      // We'll add that as an intuitive feature.
+      // ----- Event listeners with manual-angle-stops-rotation behavior -----
       angleSlider.addEventListener('input', () => {
-        // When user manually drags angle slider, stop automatic rotation.
+        // When user manually adjusts angle, stop automatic rotation for precise control
         if (rotationSpeed > 0.001) {
           rotationSpeed = 0.0;
           speedSlider.value = 0.0;
@@ -451,23 +486,47 @@
         updateAngleFromSlider();
       });
 
-      // Also allow speed slider to resume rotation naturally.
-      
-      // Initialize displays with current slider values
+      speedSlider.addEventListener('input', updateSpeedFromSlider);
+
+      resetBtn.addEventListener('click', resetAngle);
+
+      // ----- Initialization -----
       function initializeDisplays() {
         angleDisplay.textContent = parseFloat(angleSlider.value).toFixed(1) + '°';
         speedDisplay.textContent = parseFloat(speedSlider.value).toFixed(2) + 'x';
         rotationSpeed = parseFloat(speedSlider.value);
         currentAngle = parseFloat(angleSlider.value);
       }
-      
-      // Set initial values
-      initializeDisplays();
-      
-      // Start loading the image
-      loadImage();
 
-      // Cleanup animation on page unload (optional but good practice)
+      // Start everything
+      initializeDisplays();
+      setupCanvasAndPattern();
+
+      // Small delay to ensure pattern is generated before first draw
+      if (patternReady) {
+        drawRotatedSpiral();
+      } else {
+        // If pattern not ready yet (should be immediate), wait a tick
+        setTimeout(() => {
+          if (!patternReady) {
+            spiralPatternCanvas = generateSpiralPattern();
+            patternReady = true;
+          }
+          drawRotatedSpiral();
+          if (animationFrameId === null) {
+            lastTimestamp = performance.now();
+            animationFrameId = requestAnimationFrame(animationLoop);
+          }
+        }, 10);
+      }
+
+      // Start animation loop
+      if (animationFrameId === null) {
+        lastTimestamp = performance.now();
+        animationFrameId = requestAnimationFrame(animationLoop);
+      }
+
+      // Cleanup
       window.addEventListener('beforeunload', () => {
         if (animationFrameId) {
           cancelAnimationFrame(animationFrameId);
