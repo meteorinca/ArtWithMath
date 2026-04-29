@@ -1,0 +1,41 @@
+function setup() {
+  createCanvas(800, 800);
+  noLoop();
+}
+
+function draw() {
+  background(20);
+  
+  // Center the drawing
+  translate(width / 2, height / 2);
+  
+  // Vibrant cyan background circle
+  noStroke();
+  fill(0, 153, 221);
+  ellipse(0, 0, 650, 650);
+  
+  let n = 3000;        // Total dots
+  let c = 5.8;         // Scaling constant for spacing
+  let goldenAngle = 137.508;  // The golden angle in degrees
+  
+  fill(255);
+  noStroke();
+  
+  for (let i = 0; i < n; i++) {
+    // Phyllotaxis positioning
+    let r = c * sqrt(i);
+    let theta = radians(i * goldenAngle);
+    
+    let x = r * cos(theta);
+    let y = r * sin(theta);
+    
+    // Use log for radial frequency
+    // Adding a small offset to avoid log(0) issues
+    let spiral = sin(8.72 * log(r + 0.5) + 2 * theta);
+    
+    // Map to dot size
+    let d = map(spiral, -1, 1, 1.5, 9);
+    
+    ellipse(x, y, d, d);
+  }
+}
